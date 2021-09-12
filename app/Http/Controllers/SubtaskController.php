@@ -7,17 +7,22 @@ use Illuminate\Http\Request;
 
 class SubtaskController extends Controller
 {
-    public function index($id) {
+    public function index($subtask) {
         return view('subtasks.index', [
-            'subtasks' => subtask::where('task_id', $id)->get(),
-            'id' => $id,
+            'subtasks' => subtask::where('task_id', $subtask)->get(),
+            'id' => $subtask,
             'i' => 1
         ]);
     }
+    // public function read($subtask) {
+    //     return view('subtasks.index', [
+    //         'subtasks' => subtask::where('task_id', $subtask)->get(),
+    //         'id' => $subtask,
+    //         'i' => 1
+    //     ]);
+    // }
     public function store(Request $request, $id) {
-        $request->validate([
-            'subtask' => 'required|max:100',
-        ]);
+        $this->validation();
         $data = subtask::where('subtask', $request->input('subtask'))->get()->map(function ($tasks) {
             if($tasks->required === 0) {
                 return true;
@@ -42,42 +47,46 @@ class SubtaskController extends Controller
             'subtask' => $request->input('subtask'),
             'task_id' => $id
         ]);
-        return redirect(route('home'). '/' . $id . '/subtasks')->with('message', 'your post has been added!');
+        return redirect(route('subtask.index', $id))->with('message', 'your post has been added!');
     }
 
-    public function edit($id) {
+    public function edit(subtask $subtask) {
         return view('subtasks.edit', [
-            'subtask' => subtask::find($id)
+            'subtask' => $subtask
         ]);
     }
-    public function update(Request $request,$id) {
-        $request->validate([
-            'subtask' => 'required',
-        ]);
-        subtask::find($id)->update([
+    public function update(Request $request,subtask $subtask) {
+        $this->validation();
+        $subtask->update([
             'subtask' => $request->input('subtask')
         ]);
 
-        return redirect(route('home'). '/' . subtask::find($id)->task_id . '/subtasks');
+        return redirect(route('subtask.index', $subtask->task_id));
     }
 
-    public function delete($id) {
+    public function delete(subtask $subtask) {
         return view('subtasks.delete', [
-            'subtask' => subtask::find($id)
+            'subtask' => $subtask
         ]);
     }
-    public function destroy($id) {
-        $data = subtask::find($id)->task_id;
-        subtask::find($id)->delete();
-        return redirect(route('home'). '/' . $data . '/subtasks');
+    public function destroy(subtask $subtask) {
+        $data = $subtask->task_id;
+        $subtask->delete();
+        return redirect(route('subtask.index', $data));
     }
 
-    public function finished($id) {
-        $data = subtask::find($id)->task_id;
-        subtask::find($id)->update([
-            'required' => !subtask::find($id)->required,
+    public function finished(subtask $subtask) {
+        $data = $subtask->task_id;
+        $subtask->update([
+            'required' => !$subtask->required,
         ]);
 
-        return redirect(route('home'). '/' . $data . '/subtasks');
+        return redirect(route('subtask.index', $data));
+    }
+    protected function validation()
+    {
+        return request()->validate([
+            'subtask' => 'required|max:100',
+        ]);
     }
 }

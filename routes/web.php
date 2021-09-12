@@ -18,23 +18,23 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home/read', 'HomeController@read');
+Route::get('/home/create', 'HomeController@create');
 Route::post('/home', 'HomeController@store');
 
-Route::get('/home/{id}/delete', 'HomeController@delete');
-Route::delete('home/{id}/delete', 'HomeController@destroy');
+Route::get('home/{task}/delete', 'HomeController@destroy');
 
-Route::get('home/{id}/edit', 'HomeController@edit');
-Route::put('home/{id}/edit', 'HomeController@update');
+Route::get('home/{task}/edit', 'HomeController@edit');
+Route::put('home/{task}/update', 'HomeController@update');
 
-Route::get('home/{id}/finished', 'HomeController@finished');
+Route::get('home/{task}/finished', 'HomeController@finished');
 
-Route::get('home/{id}/subtasks', 'SubtaskController@index');
-Route::post('/home/{id}/subtask/create', 'SubtaskController@store');
+Route::get('home/{subtask}/subtasks', 'SubtaskController@index')->name('subtask.index');
+Route::post('/home/{subtask}/subtask/create', 'SubtaskController@store');
 
-Route::get('/home/{id}/subtask/edit', 'SubtaskController@edit');
-Route::put('/home/{id}/subtask/edit', 'SubtaskController@update');
+Route::get('/home/{subtask}/subtask/edit', 'SubtaskController@edit');
+Route::get('/home/{subtask}/subtask/update', 'SubtaskController@update');
 
-Route::get('/home/{id}/subtask/delete', 'SubtaskController@delete');
-Route::delete('/home/{id}/subtask/delete', 'SubtaskController@destroy');
+Route::get('/home/{subtask}/subtask/delete', 'SubtaskController@destroy');
 
-Route::get('home/{id}/subtask/finished', 'SubtaskController@finished');
+Route::get('home/{subtask}/subtask/finished', 'SubtaskController@finished');

@@ -1,20 +1,32 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- @if (session('message'))
-  <div class="alert alert-block position-absolute" style="width: 100%;height: 100vh;z-index: 100;background-color: rgba(0, 0, 0, 0.5);">
-    <div class="container py-5 h-100" style="">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="pr-4 pl-4 bg-light">
-          <button type="button" class="close" data-dismiss="alert">×</button>    
-          <strong style="color: red">{{ session('message') }}</strong>
+<!-- Modal -->
+<div class="modal fade" style="z-index: 10000" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
+      <div class="modal-body" id="showTask">
+        
       </div>
     </div>
   </div>
-  
+</div>
 
-@endif --}}
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" id="showSubtasks">
+      
+    </div>
+  </div>
+</div>
+
 <section class="vh-100 gradient-custom">
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -24,71 +36,14 @@
   
               <h1 class="text-center my-3 pb-3 font-weight-bold">To Do App</h1>
   
-              <form action="{{ route('home') }}" method="POST" class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-4">
-                @csrf
-                <div class="col-10">
-                  <div class="form-outline">
-                    <input name="task" type="text"  class="form-control" required/>
-                    <div style="position: absolute; width:100%">
-                      @error('task')
-                      <p style="color: red">{{ $errors->first('task') }}</p>
-                      @else
-                      <label class="form-label position-absolute" for="form1">
-                        @if (session('message'))
-                          <p class="bg-danger">{{ session('message') }}</p>
-                          @else
-                          Enter a task here
-                        @endif
-                      </label>
-                      @enderror  
-                    </div>
-                  </div>
-                </div>
-  
-                <div class="col-2 ml-0 pl-0">
-                  <button type="submit" class="btn btn-primary">Add task</button>
-                </div>
-              </form>
-              <table class="table mb-4">
-                <thead>
-                  <tr>
-                    <th scope="col">No.</th>
-                    <th scope="col">Todo item</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach ($tasks as $task)
-                    <tr style="{{ $task->required ? 'background: silver;opacity:0.8' : '' }}">
-                      <th scope="row">{{ $i++ }}</th>
-                      <td>{{ $task->task }}</td>
-                      <td>
-                          <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}" 
-                            action="{{route('home')}}/{{$task->id}}/subtasks" method="GET">
-                            <button type="submit" class="btn btn-primary ms-1">
-                              Subtask
-                            </button>
-                          </form>
-                          <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}" action="/home/{{ $task->id }}/edit">
-                            <button type="submit" class="btn btn-secondary ms-1">
-                              Edit
-                            </button>
-                          </form>
-                          <form class="" action="/home/{{ $task->id }}/delete" style="display: inline-block">
-                            <button type="submit" class="btn btn-danger">
-                              Delete
-                            </button>
-                          </form>
-                          <form class="" action="/home/{{ $task->id }}/finished" style="display: inline-block">
-                            <button type="submit" class="btn btn-success ms-1">
-                               {{ $task->required ? 'Restart' : $protcent[ $j++ ].'% Done' }}
-                            </button>
-                          </form>
-                        </td>
-                      </tr>
-                    @endforeach
-                </tbody>
-              </table>
+             {{-- create tasks --}}
+             @include('todo.create')
+              <div id="read">
+                
+              </div>
+              <div>
+                
+              </div>
 
             </div>
           </div>
@@ -96,5 +51,156 @@
       </div>
     </div>
   </section>
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+<script>  
+  function read() { 
+      $.get("{{ url('home/read') }}", {}, function(data, status) {
+        $('#read').html(data)
+      });
+    };
+  function edit(task) {
+    $.get("{{ url('home') }}/" + task + '/edit', {}, function(data, status) {
+        $('#exampleModalLabel').html('Edit Product')
+        $('#showTask').html(data)
+    });
+  }
+
+  function update(id) {
+    let task = $('#message-text').val();
+    let token = $('meta[name="csrf-token"]').attr('content');
+    $.ajax({
+        type: 'put',
+        header:{
+          'X-CSRF-TOKEN': token
+        },
+        url: '{{ url('home') }}/' + id + '/update',
+        data:{
+          _token: token,
+          "task": task,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },  
+        success: function(response) {
+          $('.btn-close').click();
+          read()
+        }
+      });
+  }
+  function taskFinished(id) { 
+    console.log(id);
+    $.ajax({
+        type: 'get',
+        url: '{{ url('home') }}/' + id + '/finished',
+        data: "id=" +id,
+        success: function(response) {
+          read();
+        }
+    });
+  }
+  function destroy(id) {
+    let a = confirm('Do you want to delete this task?');
+    if (a) {
+      $.ajax({
+        type: 'get',
+        url: '{{ url('home') }}/' + id + '/delete',
+        data: "id=" +id,
+        success: function(response) {
+          $('.btn-close').click();
+          read()
+        }
+      });
+    }
+  }
+  
+
+  //subtask
+
+  function subtaskRead(id) { 
+    console.log(id);
+      $.get("{{ url('home') }}/" + id + '/subtasks', {}, function(data, status) {
+        $('#showSubtasks').html(data)
+      });
+  };
+
+  function subtaskCreate(id) {
+    $('#addSubtask').on('submit', function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: 'POST',
+        url: '{{ route('home') }}/' + id + '/subtask' + '/create',
+        data: $('#addSubtask').serialize(),
+        success: function(response) {
+          alert(response.data)
+          subtaskRead(id)
+          $('#createInput').val(null);
+        }
+      });
+    })
+  }
+  function subtaskEdit(subtask) {
+    $.get("{{ url('home') }}/" + subtask + '/subtask/edit', {}, function(data, status) {
+        $('#exampleModalLabel').html('Edit Subtask')
+        $('#showTask').html(data)
+    });
+  }
+  function subtaskUpdate(id, task_id) {
+    let subtask = $('#message-subtask').val();
+    console.log(task_id);
+    $.ajax({
+        type: 'get',
+        url: '{{ url('home') }}/' + id + '/subtask/update',
+        data: "subtask=" +subtask,
+        success: function() {
+          subtaskRead(task_id);
+        }
+      });
+  }
+  function subtaskDestroy(id, task_id) {
+    let a = confirm('Do you want to delete this subtask?');
+    if (a) {
+      $.ajax({
+        type: 'get',
+        url: '{{ url('home') }}/' + id + '/subtask/delete',
+        data: "id=" +id,
+        success: function(response) {
+          $('.btn-close').click();
+          subtaskRead(task_id);
+        }
+      });
+    }
+  }
+  function subtaskFinished(id, task_id) { 
+    $.ajax({
+        type: 'get',
+        url: '{{ url('home') }}/' + id + '/subtask/finished',
+        data: "id=" +id,
+        success: function(response) {
+          subtaskRead(task_id);
+        }
+    });
+  }
+  
+  $(document).ready(function(){
+    read()
+    subtaskRead()
+    $('#addform').on('submit', function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: 'POST',
+        url: '{{ route('home') }}',
+        data: $('#addform').serialize(),
+        success: function(response) {
+          console.log($('#createInput').val())
+          alert(response.data)
+          read()
+          $('#createInput').val(null);
+        }
+      });
+    })
+  })
+</script>
 
 @endsection
+
+

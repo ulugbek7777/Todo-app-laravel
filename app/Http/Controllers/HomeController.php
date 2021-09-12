@@ -23,19 +23,10 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     //count(Tasks::find($data)->subtasks) hammasi
-    public function protcent($data = 5) {
-        $active = count(Tasks::find($data)->subtasks);
-        $data = Tasks::find($data)->subtasks->pluck('required');
-        $newdata = false;
-        $finished = 0;
-        foreach($data as $newdata){
-            if($newdata) {
-                $finished++;
-            }
-        }
-        return (($finished + $active) / $active) * 100 - 100;
+    function index() {
+        return view('todo.home');
     }
-    public function index()
+    function read()
     {
         $protcent = Tasks::latest()->get()->pluck('id')->map(function ($data) {
             count(Tasks::find($data)->subtasks) ? $active = count(Tasks::find($data)->subtasks) : $active = 1;
@@ -47,13 +38,13 @@ class HomeController extends Controller
                     $finished++;
                 }
             }
-            return (($finished + $active) / $active) * 100 - 100;
+            return round(((($finished + $active) / $active) * 100 - 100));
         });
         $done = 0;
         foreach($protcent as $pro) {
             $done += $pro;
         }
-        return view('todo.home', [
+        return view('todo.createTasks', [
             'tasks' => Tasks::latest()->get(),
             'i' => 1,
             'protcent' => $protcent,
@@ -62,10 +53,12 @@ class HomeController extends Controller
     }
 
     public function create() {
-
+        return view('todo.create');
     }
     public function store(Request $request)
     {
+        $this->validation();
+
         $data = Tasks::where('task', $request->input('task'))->get()->map(function ($tasks) {
             if($tasks->required === 0) {
                 return true;
@@ -81,31 +74,27 @@ class HomeController extends Controller
                 $newdata = false;
             }
         }
-        
-        $request->validate([
-            'task' => 'required|max:100',
-        ]);
         if($newdata) {
-            return redirect('/home')->with('message', 'such a task is already included');
+            $data = 'Such a task is already included';
+            return response()->json(array('data'=> $data), 200);
         };
 
         Tasks::create([
             'task' => $request->input('task'),
             'user_id' => auth()->user()->id
         ]);
-        return redirect('/home')->with('message', 'your post has been added!');
+        $data = 'Your data here';
+        return response()->json(array('data'=> $data), 200);
     }
 
-    public function edit($id) {
-        return view('todo.edit', [
-            'task' => Tasks::find($id)
-        ]);
+    public function edit(Tasks $task) {
+        return view('todo.edit', compact('task'));
     }
-    public function update(Request $request, $id) {
-        $request->validate([
-            'task' => 'required|max:100',
-        ]);
-        Tasks::find($id)->update([
+    public function update(Request $request, Tasks $task) {
+        $this->validation();
+        echo($task);
+
+        $task->update([
             'task' => $request->input('task'),
             'user_id' => auth()->user()->id
         ]);
@@ -119,23 +108,29 @@ class HomeController extends Controller
     // update
     // destroy
 
-    public function delete($id) {
+    public function delete(Tasks $task) {
         return view('todo.delete', [
-            'task' => Tasks::find($id),
+            'task' => $task,
         ]);
     }
 
-    public function destroy($id) {
-        Tasks::find($id)->delete();
+    public function destroy(Tasks $task) {
+        $task->delete();
 
         return redirect(route('home'));
     }
 
-    public function finished($id) {
-        Tasks::find($id)->update([
-            'required' => !Tasks::find($id)->required,
+    public function finished(Tasks $task) {
+        $task->update([
+            'required' => !$task->required,
         ]);
 
         return redirect(route('home'));
+    }
+    protected function validation()
+    {
+        return request()->validate([
+            'task' => 'required|max:100',
+        ]);
     }
 }
