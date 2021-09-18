@@ -1,6 +1,6 @@
   @foreach ($tasks as $task)
-  {{ date('d') }}
-  {{ $task->created_at->format('d') }}
+  {{-- {{ date('d') }}
+  {{ $task->created_at->format('d') }} --}}
   <div class="task-block d-flex py-3" style="position: relative">
     <div class="" style="position: relative">
       <label class="container_checkbox">

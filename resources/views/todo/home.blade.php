@@ -35,7 +35,16 @@
       </div>
     </div>
     <div class="col-8 align-items-center m-auto">
-      <h1 class="text-center p-4 font-weight-bold">To Do App</h1>
+      <div style="position: relative;" class="pt-4 pb-4">
+        <h3 class="font-weight-bold d-inline-block">To Do App</h3>
+        <div class="dropdown iconSet">
+          <img src="https://cdn-icons-png.flaticon.com/512/2467/2467852.png" class="form-icon " alt="" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item font-weight-bold" style="cursor: pointer">Today</a></li>
+            <li><a class="dropdown-item font-weight-bold" href="#">Others...</a></li>
+          </ul>
+        </div>
+      </div>
       <div id="read"></div>
       @include('todo.create')
       <div id="getChapters"></div>
@@ -45,9 +54,7 @@
         </div>
         <div class="chater_input_block" id="chapterInputBlock">
           @include('chapter.create')
-        </div>
-        
-        
+        </div>        
       </div>
       
       
