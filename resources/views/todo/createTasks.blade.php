@@ -1,43 +1,47 @@
+  @foreach ($tasks as $task)
+  {{ date('d') }}
+  {{ $task->created_at->format('d') }}
+  <div class="task-block d-flex py-3" style="position: relative">
+    <div class="" style="position: relative">
+      <label class="container_checkbox">
+        <input type="checkbox" {{ $task->required ? 'checked' : ''}} onchange="taskFinished({{$task->id}})">
+        <span class="checkmark"></span>
+      </label>
+    </div>
+    <div class="text-block">
+      <p class="checkbox_text">{{$task->task}}</p>
+    </div>
+    <div class="form-buttons">
+      <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}" 
+        action="{{route('home')}}/{{$task->id}}/subtasks" method="GET" data-toggle="modal" data-target=".bd-example-modal-lg">
+        <img onclick="subtaskRead({{$task->id}})" 
+        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Subtasks"
+        class="form-icon" src="https://cdn-icons-png.flaticon.com/128/839/839860.png" 
+        alt="">
+        
+      </form>
+      <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
+        <img onclick="edit({{ $task->id }})" data-toggle="modal" data-target="#exampleModal"
+        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit"
+        class="form-icon" src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png" 
+        alt="">
+      </form>
+      <form class="" style="display: inline-block">
+        <img onclick="destroy({{ $task->id }})"
+        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"
+        class="form-icon" src="https://cdn-icons-png.flaticon.com/128/1214/1214428.png" 
+        alt="">
+      </form>
+      <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
+        <button type="button" class="btn btn-success ms-1">
+           {{ $protcent[ $j++ ].'% Done' }}
+        </button>
+      </form>
+    </div>
+  </div>
+  @endforeach
+  
+  <style>
+    
+  </style>
 
-  <table class="table mb-4">
-    <thead>
-      <tr>
-        <th scope="col">Check</th>
-        <th scope="col">Todo item</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach ($tasks as $task)
-        <tr style="{{ $task->required ? 'background: silver;opacity:0.8' : '' }}">
-          <th scope="row">
-            <input {{ $task->required ? 'checked' : ''}} onchange="taskFinished({{$task->id}})" type="checkbox" aria-label="Checkbox for following text input">
-          </th>
-          <td>{{ $task->task }}</td>
-          <td>
-              <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}" 
-                action="{{route('home')}}/{{$task->id}}/subtasks" method="GET" data-toggle="modal" data-target=".bd-example-modal-lg">
-                <button onclick="subtaskRead({{$task->id}})" type="button" class="btn btn-primary ms-1">
-                  Subtask 
-                </button>
-              </form>
-              <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
-                <button onclick="edit({{ $task->id }})" type="button" class="btn btn-secondary ms-1" data-toggle="modal" data-target="#exampleModal">
-                  Edit
-                </button>
-              </form>
-              <form class="" style="display: inline-block">
-                <button onclick="destroy({{ $task->id }})" type="button" class="btn btn-danger">
-                  Delete
-                </button>
-              </form>
-              <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
-                <button type="button" class="btn btn-success ms-1">
-                   {{ $protcent[ $j++ ].'% Done' }}
-                </button>
-              </form>
-            </td>
-          </tr>
-        @endforeach
-    </tbody>
-  </table>

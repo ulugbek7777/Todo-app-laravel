@@ -40,14 +40,16 @@ class SubtaskController extends Controller
         }
         
         if($newdata) {
-            return redirect(route('home'). '/' . $id . '/subtasks')->with('message', 'such a subtask is already included');
+            $data = 'such a subtask is already included';
+            return response()->json(array('data'=> $data), 200);
         };
 
         subtask::create([
             'subtask' => $request->input('subtask'),
             'task_id' => $id
         ]);
-        return redirect(route('subtask.index', $id))->with('message', 'your post has been added!');
+        $data = 'New subtask has been created';
+        return response()->json(array('data'=> $data), 200);
     }
 
     public function edit(subtask $subtask) {

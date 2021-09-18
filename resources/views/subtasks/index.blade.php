@@ -33,13 +33,6 @@
                 </div>
               </form>
               <table class="table mb-4">
-                <thead>
-                  <tr>
-                    <th scope="col">Check</th>
-                    <th scope="col">Todo item</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
                 <tbody>
                   @foreach ($subtasks as $subtask)
                     <tr style="{{ $subtask->required ? 'background: silver;opacity:0.8' : '' }}">
@@ -56,12 +49,7 @@
                               Delete
                             </button>
                           </form>
-                          <form method="GET" action="/home/{{ $subtask->id }}/subtask/finished" style="display: inline-block">
-                            @csrf
-                            <button type="submit" class="btn btn-success ms-1">
-                              {{ $subtask->required ? 'Restart' : 'Finished' }}
-                            </button>
-                          </form>
+                          
                         </td>
                       </tr>
                     @endforeach

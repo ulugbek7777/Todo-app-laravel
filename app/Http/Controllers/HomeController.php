@@ -28,7 +28,7 @@ class HomeController extends Controller
     }
     function read()
     {
-        $protcent = Tasks::latest()->get()->pluck('id')->map(function ($data) {
+        $protcent = auth()->user()->task()->latest()->where('chapter_id', 0)->get()->pluck('id')->map(function ($data) {
             count(Tasks::find($data)->subtasks) ? $active = count(Tasks::find($data)->subtasks) : $active = 1;
             $data = Tasks::find($data)->subtasks->pluck('required');
             $newdata = false;
@@ -45,7 +45,7 @@ class HomeController extends Controller
             $done += $pro;
         }
         return view('todo.createTasks', [
-            'tasks' => Tasks::latest()->get(),
+            'tasks' => auth()->user()->task()->latest()->where('chapter_id', 0)->get(),
             'i' => 1,
             'protcent' => $protcent,
             'j' => 0,
@@ -81,9 +81,10 @@ class HomeController extends Controller
 
         Tasks::create([
             'task' => $request->input('task'),
+            'chapter_id' => $request->input('chapter_id'),
             'user_id' => auth()->user()->id
         ]);
-        $data = 'Your data here';
+        $data = 'New task has been created';
         return response()->json(array('data'=> $data), 200);
     }
 
@@ -92,14 +93,13 @@ class HomeController extends Controller
     }
     public function update(Request $request, Tasks $task) {
         $this->validation();
-        echo($task);
 
         $task->update([
             'task' => $request->input('task'),
             'user_id' => auth()->user()->id
         ]);
 
-        return redirect(route('home'));
+        
     }
 
 
@@ -116,8 +116,6 @@ class HomeController extends Controller
 
     public function destroy(Tasks $task) {
         $task->delete();
-
-        return redirect(route('home'));
     }
 
     public function finished(Tasks $task) {
@@ -130,7 +128,7 @@ class HomeController extends Controller
     protected function validation()
     {
         return request()->validate([
-            'task' => 'required|max:100',
+            'task' => 'required|max:255',
         ]);
     }
 }

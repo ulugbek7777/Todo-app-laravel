@@ -26,31 +26,38 @@
     </div>
   </div>
 </div>
-
-<section class="vh-100 gradient-custom">
-    <div class="container py-5 h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col col-lg-9 col-xl-12">
-          <div class="card rounded-3">
-            <div class="card-body p-4">
   
-              <h1 class="text-center my-3 pb-3 font-weight-bold">To Do App</h1>
-  
-             {{-- create tasks --}}
-             @include('todo.create')
-              <div id="read">
-                
-              </div>
-              <div>
-                
-              </div>
+  {{-- create tasks --}}
+  <div class="row" style="width: 100%">
+    <div class="col- sidebar_container">
+      <div class="sidebar_block">
 
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  </section>
+    <div class="col-8 align-items-center m-auto">
+      <h1 class="text-center p-4 font-weight-bold">To Do App</h1>
+      <div id="read"></div>
+      @include('todo.create')
+      <div id="getChapters"></div>
+      <div class="add_chapter_block">
+        <div id="chaperBlock" class="chapter_block" style="margin-bottom: 80px">
+          <p class="add_chapter">Add Chapter</p>
+        </div>
+        <div class="chater_input_block" id="chapterInputBlock">
+          @include('chapter.create')
+        </div>
+        
+        
+      </div>
+      
+      
+    </div>
+  </div>
+  
+
+
+
+
   <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 
 <script>  
@@ -58,7 +65,7 @@
       $.get("{{ url('home/read') }}", {}, function(data, status) {
         $('#read').html(data)
       });
-    };
+  };
   function edit(task) {
     $.get("{{ url('home') }}/" + task + '/edit', {}, function(data, status) {
         $('#exampleModalLabel').html('Edit Product')
@@ -100,11 +107,17 @@
   }
   function destroy(id) {
     let a = confirm('Do you want to delete this task?');
+    let token = $('meta[name="csrf-token"]').attr('content');
     if (a) {
       $.ajax({
-        type: 'get',
+        type: 'delete',
         url: '{{ url('home') }}/' + id + '/delete',
-        data: "id=" +id,
+        data:{
+          _token: token,
+          "id": id,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },  
         success: function(response) {
           $('.btn-close').click();
           read()
@@ -132,8 +145,12 @@
         data: $('#addSubtask').serialize(),
         success: function(response) {
           alert(response.data)
-          subtaskRead(id)
+          subtaskRead(id);
+          read();
           $('#createInput').val(null);
+        },
+        error: function () {
+          alert('ERROR');
         }
       });
     })
@@ -166,6 +183,7 @@
         success: function(response) {
           $('.btn-close').click();
           subtaskRead(task_id);
+          read();
         }
       });
     }
@@ -177,28 +195,188 @@
         data: "id=" +id,
         success: function(response) {
           subtaskRead(task_id);
+          read();
         }
     });
   }
+
+  
+
+  function taskCreate() {
+    let b = $('#taskInput').text();
+    if(b.length > 500) {
+      alert('Your text is more than 500 words');
+    }else if (b.length == 0) {
+      alert('write something');
+    } else {
+      let token = $('meta[name="csrf-token"]').attr('content');
+      $.ajax({
+        type: 'POST',
+        url: '{{ route('home') }}',
+        data:{
+          _token: token,
+          "task": b,
+          "chapter_id": '' + 0,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },
+        success: function(response) {
+          console.log(response.data)
+          read()
+          $('#taskInput').text(null);
+        },
+      
+      });
+    }
+    
+      
+  }
+
+  //chapter
+
+  function getChapters() { 
+      $.get("{{ route('index.chapter') }}", {}, function(data, status) {
+        
+        $('#getChapters').html(data)
+      });
+  };
+
+  function getChaptersTasks(id) { 
+      $.get("home/chapter/" + id + "/show", {}, function(data, status) {
+        $('#TaskInChapterBlock' + id).html(data)
+      });
+  };
+
+  function chapterCreate() {
+    let b = $('#chapterInput').val();
+    if(b.length > 100) {
+      alert('Your words length must be less then 100 Your words length ' + b.length);
+    } else if (b.length == 0) {
+      alert('Write something')
+    } else {
+      let token = $('meta[name="csrf-token"]').attr('content');
+      $.ajax({
+        type: 'POST',
+        url: 'home/chapter',
+        data:{
+          _token: token,
+          "chapter": b,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },
+        success: function() {
+          $('#chapterInput').val(null);
+          getChapters()
+        },
+      
+      });
+    }
+  }
+  function taskCreateInChapter(id) {
+    let b = $('#taskChapterInput' + id).text();
+    if(b.length > 500) {
+      alert('Your text is more than 500 words');
+    }else if (b.length == 0) {
+      alert('write something');
+    } else {
+      let token = $('meta[name="csrf-token"]').attr('content');
+      $.ajax({
+        type: 'POST',
+        url: '{{ route('home') }}',
+        data:{
+          _token: token,
+          "task": b,
+          "chapter_id": id,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },
+        success: function(response) {
+          alert(response.data)
+          read()
+          $('#taskChapterInput' + id).text(null);
+          getChaptersTasks(id);
+        },
+      
+      });
+    }
+  }
+
+  function editChapterToModal(chapter) {
+    $.get("{{ url('home') }}/chapter/" + chapter + '/edit', {}, function(data, status) {
+        $('#exampleModalLabel').html('Edit Chapter')
+        $('#showTask').html(data)
+    });
+  }
+
+  function updateChapter(id) {
+    let chapter = $('#chapterTextToUpdate').val();
+    let token = $('meta[name="csrf-token"]').attr('content');
+    $.ajax({
+        type: 'put',
+        header:{
+          'X-CSRF-TOKEN': token
+        },
+        url: '{{ url('home') }}/chapter/' + id + '/update',
+        data:{
+          _token: token,
+          "chapter": chapter,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },  
+        success: function(response) {
+          $('.btn-close').click();
+          getChapters()
+        }
+      });
+  }
+  function Chapterdestroy(id) {
+    let a = confirm('Do you want to delete this chapter?');
+    let token = $('meta[name="csrf-token"]').attr('content');
+    if (a) {
+      $.ajax({
+        type: 'delete',
+        url: '{{ url('home') }}/chapter/' + id + '/delete',
+        data:{
+          _token: token,
+          "id": id,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },  
+        success: function(response) {
+          $('.btn-close').click();
+          getChapters()
+        }
+      });
+    }
+  }
+
+  
   
   $(document).ready(function(){
     read()
     subtaskRead()
-    $('#addform').on('submit', function(e) {
-      e.preventDefault();
-      $.ajax({
-        type: 'POST',
-        url: '{{ route('home') }}',
-        data: $('#addform').serialize(),
-        success: function(response) {
-          console.log($('#createInput').val())
-          alert(response.data)
-          read()
-          $('#createInput').val(null);
-        }
-      });
-    })
+    getChapters()
+    $("#addTaskAsync").click(function(){
+        $("#AddTaskDisplay").css({display: "block"});
+        $("#addTaskAsync").addClass('importantRule');
+    });
+    $("#removeClass").click(function(){
+        $("#AddTaskDisplay").css({display: "none"});
+        $("#addTaskAsync").removeClass('importantRule');
+    });
+
+    //chapter
+    $("#chaperBlock").click(function(){
+        $("#chapterInputBlock").css({display: "block"});
+        $("#chaperBlock").css({display: "none"});
+    });
+    $("#removeChapterClass").click(function(){
+        $("#chapterInputBlock").css({display: "none"});
+        $("#chaperBlock").css({display: "block"});
+    });
   })
+
+  
 </script>
 
 @endsection
