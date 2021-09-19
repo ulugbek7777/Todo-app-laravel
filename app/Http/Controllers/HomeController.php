@@ -54,9 +54,16 @@ class HomeController extends Controller
     }
     function readToday() {
         return view('todo.createTasks', [
-            'tasks' => auth()->user()->task()->latest()->where('chapter_id', 0)->where('date', date('d'))->get(),
+            'tasks' => auth()->user()->task()->latest()->where('chapter_id', 0)->where('date', date('y-m-d'))->get(),
             'i' => 1,
             'protcent' => 0,
+            'j' => 0,
+        ]);
+    }
+    public function calendar() {
+        return view('todo.calendar', [
+            'tasks' => auth()->user()->task()->latest()->where('chapter_id', 0)->get(),
+            'i' => 1,
             'j' => 0,
         ]);
     }
@@ -91,7 +98,7 @@ class HomeController extends Controller
             'task' => $request->input('task'),
             'chapter_id' => $request->input('chapter_id'),
             'user_id' => auth()->user()->id,
-            'date' => date('d')
+            'date' => $request->input('date')
         ]);
         $data = 'New task has been created';
         return response()->json(array('data'=> $data), 200);

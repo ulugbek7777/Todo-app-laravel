@@ -19,13 +19,13 @@
                 
             </form>
             <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
-                <img onclick="edit({{ $task->id }})" data-toggle="modal" data-target="#exampleModal"
+                <img onclick="edit({{ $task->id }}, {{ $task->chapter_id }})" data-toggle="modal" data-target="#exampleModal"
                 data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit"
                 class="form-icon" src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png" 
                 alt="">
             </form>
             <form class="" style="display: inline-block">
-                <img onclick="destroy({{ $task->id }})"
+                <img onclick="destroy({{ $task->id }}, {{ $task->chapter_id }})"
                 data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"
                 class="form-icon" src="https://cdn-icons-png.flaticon.com/128/1214/1214428.png" 
                 alt="">

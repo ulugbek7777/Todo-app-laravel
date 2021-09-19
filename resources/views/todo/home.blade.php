@@ -18,7 +18,6 @@
   </div>
 </div>
 
-
 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" id="showSubtasks">
@@ -43,12 +42,15 @@
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
             <li><a class="dropdown-item font-weight-bold" onclick="allEvent()" style="cursor: pointer">All</a></li>
             <li><a class="dropdown-item font-weight-bold" onclick="todayEvent()" style="cursor: pointer">Today</a></li>
+            <li><a class="dropdown-item font-weight-bold" onclick="calendarEvent()" style="cursor: pointer">Chalendar</a></li>
             <li><a class="dropdown-item font-weight-bold" href="#">Others...</a></li>
           </ul>
         </div>
       </div>
       <div id="read"></div>
-      @include('todo.create')
+      <div id="createBlock">
+        @include('todo.create')
+      </div>
       <div id="chapterBlock">
         <div id="getChapters"></div>
         <div class="add_chapter_block">
@@ -83,10 +85,12 @@
         $('#read').html(data)
       });
   };
-  function edit(task) {
+  let chapterId = '';
+  function edit(task, chapter_id) {
     $.get("{{ url('home') }}/" + task + '/edit', {}, function(data, status) {
         $('#exampleModalLabel').html('Edit Product')
         $('#showTask').html(data)
+        chapterId = chapter_id;
     });
   }
 
@@ -108,6 +112,8 @@
         success: function(response) {
           $('.btn-close').click();
           checkToday ? readToday() : read()
+          getChaptersTasks(chapterId)
+          gtCl ? getCalendar() : '';
         }
       });
   }
@@ -119,10 +125,11 @@
         data: "id=" +id,
         success: function(response) {
           checkToday ? readToday() : read()
+          gtCl ? getCalendar() : '';
         }
     });
   }
-  function destroy(id) {
+  function destroy(id, chapter_id) {
     let a = confirm('Do you want to delete this task?');
     let token = $('meta[name="csrf-token"]').attr('content');
     if (a) {
@@ -137,7 +144,9 @@
         },  
         success: function(response) {
           $('.btn-close').click();
-          checkToday ? readToday() : read()
+          checkToday ? readToday() : read();
+          getChaptersTasks(chapter_id)
+          gtCl ? getCalendar() : '';
         }
       });
     }
@@ -165,6 +174,7 @@
           subtaskRead(id);
           checkToday ? readToday() : read()
           $('#createInput').val(null);
+          gtCl ? getCalendar() : '';
         },
         error: function () {
           alert('ERROR');
@@ -233,6 +243,7 @@
         data:{
           _token: token,
           "task": b,
+          "date": '{{date('y-m-d')}}',
           "chapter_id": '' + 0,
           dataType: 'json', 
           contentType:'application/json', 
@@ -244,9 +255,43 @@
         },
       
       });
+    }      
+  }
+    function addTaskAsync(id) {
+        $("#AddTaskDisplay" + id).css({display: "block"});
+        $("#addTaskAsync" + id).addClass('importantRule');
     }
-    
-      
+    function removeClass(id) {
+      $("#AddTaskDisplay" + id).css({display: "none"});
+        $("#addTaskAsync" + id).removeClass('importantRule');
+    }
+  function taskCreateCalendar(date, id) {
+    let b = $('#taskInput' + id).text();
+    if(b.length > 500) {
+      alert('Your text is more than 500 words');
+    }else if (b.length == 0) {
+      alert('write something');
+    } else {
+      let token = $('meta[name="csrf-token"]').attr('content');
+      $.ajax({
+        type: 'POST',
+        url: '{{ route('home') }}',
+        data:{
+          _token: token,
+          "task": b,
+          "date": date,
+          "chapter_id": '' + 0,
+          dataType: 'json', 
+          contentType:'application/json', 
+        },
+        success: function(response) {
+          console.log(response.data)
+          // checkToday ? readToday() : read()
+          $('#taskInput' + id).text(null);
+          getCalendar()
+        },
+      });
+    }      
   }
 
   //chapter
@@ -304,6 +349,7 @@
           _token: token,
           "task": b,
           "chapter_id": id,
+          "date": '{{date('y-m-d')}}',
           dataType: 'json', 
           contentType:'application/json', 
         },
@@ -368,19 +414,36 @@
   let checkToday = false;
   function todayEvent() {
     checkToday = true;
+    gtCl = false;
     readToday();
     $('#todoOrToday').text('Today') 
     $('#chapterBlock').css({display: 'none'})
     $('#date').text('{{ date('D d-M') }}') 
+    $('#createBlock').css({display: 'block'})
   }
   function allEvent() {
+    gtCl = false;
     checkToday = false;
     read();
     $('#todoOrToday').text('To Do App') 
     $('#chapterBlock').css({display: 'block'})
     $('#date').text('') 
+    $('#createBlock').css({display: 'block'})
   }
-  
+  let gtCl = false;
+  function calendarEvent() {
+    gtCl = true;
+    getCalendar()
+    $('#todoOrToday').text('Calendar') 
+    $('#chapterBlock').css({display: 'none'})
+    $('#createBlock').css({display: 'none'})
+    $('#date').text('') 
+  }
+  function getCalendar() { 
+      $.get("{{ url('home/read/calendar') }}", {}, function(data, status) {
+        $('#read').html(data)
+      });
+  };
   $(document).ready(function(){
     read()
     subtaskRead()
