@@ -36,26 +36,31 @@
     </div>
     <div class="col-8 align-items-center m-auto">
       <div style="position: relative;" class="pt-4 pb-4">
-        <h3 class="font-weight-bold d-inline-block">To Do App</h3>
+        <h3 class="font-weight-bold d-inline-block" id="todoOrToday">To Do App</h3>
+        <p class="d-inline-block" id="date"></p>
         <div class="dropdown iconSet">
           <img src="https://cdn-icons-png.flaticon.com/512/2467/2467852.png" class="form-icon " alt="" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <li><a class="dropdown-item font-weight-bold" style="cursor: pointer">Today</a></li>
+            <li><a class="dropdown-item font-weight-bold" onclick="allEvent()" style="cursor: pointer">All</a></li>
+            <li><a class="dropdown-item font-weight-bold" onclick="todayEvent()" style="cursor: pointer">Today</a></li>
             <li><a class="dropdown-item font-weight-bold" href="#">Others...</a></li>
           </ul>
         </div>
       </div>
       <div id="read"></div>
       @include('todo.create')
-      <div id="getChapters"></div>
-      <div class="add_chapter_block">
-        <div id="chaperBlock" class="chapter_block" style="margin-bottom: 80px">
-          <p class="add_chapter">Add Chapter</p>
+      <div id="chapterBlock">
+        <div id="getChapters"></div>
+        <div class="add_chapter_block">
+          <div id="chaperBlock" class="chapter_block" style="margin-bottom: 80px">
+            <p class="add_chapter">Add Chapter</p>
+          </div>
+          <div class="chater_input_block" id="chapterInputBlock">
+            @include('chapter.create')
+          </div>        
         </div>
-        <div class="chater_input_block" id="chapterInputBlock">
-          @include('chapter.create')
-        </div>        
       </div>
+      
       
       
     </div>
@@ -70,6 +75,11 @@
 <script>  
   function read() { 
       $.get("{{ url('home/read') }}", {}, function(data, status) {
+        $('#read').html(data)
+      });
+  };
+  function readToday() { 
+      $.get("{{ url('home/read/today') }}", {}, function(data, status) {
         $('#read').html(data)
       });
   };
@@ -97,7 +107,7 @@
         },  
         success: function(response) {
           $('.btn-close').click();
-          read()
+          checkToday ? readToday() : read()
         }
       });
   }
@@ -108,7 +118,7 @@
         url: '{{ url('home') }}/' + id + '/finished',
         data: "id=" +id,
         success: function(response) {
-          read();
+          checkToday ? readToday() : read()
         }
     });
   }
@@ -127,7 +137,7 @@
         },  
         success: function(response) {
           $('.btn-close').click();
-          read()
+          checkToday ? readToday() : read()
         }
       });
     }
@@ -153,7 +163,7 @@
         success: function(response) {
           alert(response.data)
           subtaskRead(id);
-          read();
+          checkToday ? readToday() : read()
           $('#createInput').val(null);
         },
         error: function () {
@@ -190,7 +200,7 @@
         success: function(response) {
           $('.btn-close').click();
           subtaskRead(task_id);
-          read();
+          checkToday ? readToday() : read()
         }
       });
     }
@@ -202,7 +212,7 @@
         data: "id=" +id,
         success: function(response) {
           subtaskRead(task_id);
-          read();
+          checkToday ? readToday() : read()
         }
     });
   }
@@ -229,7 +239,7 @@
         },
         success: function(response) {
           console.log(response.data)
-          read()
+          checkToday ? readToday() : read()
           $('#taskInput').text(null);
         },
       
@@ -299,7 +309,6 @@
         },
         success: function(response) {
           alert(response.data)
-          read()
           $('#taskChapterInput' + id).text(null);
           getChaptersTasks(id);
         },
@@ -356,8 +365,21 @@
       });
     }
   }
-
-  
+  let checkToday = false;
+  function todayEvent() {
+    checkToday = true;
+    readToday();
+    $('#todoOrToday').text('Today') 
+    $('#chapterBlock').css({display: 'none'})
+    $('#date').text('{{ date('D d-M') }}') 
+  }
+  function allEvent() {
+    checkToday = false;
+    read();
+    $('#todoOrToday').text('To Do App') 
+    $('#chapterBlock').css({display: 'block'})
+    $('#date').text('') 
+  }
   
   $(document).ready(function(){
     read()

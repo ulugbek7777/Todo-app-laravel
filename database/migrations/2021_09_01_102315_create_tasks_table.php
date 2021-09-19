@@ -19,6 +19,7 @@ class CreateTasksTable extends Migration
             $table->boolean('required')->default(0);
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('chapter_id')->nullable();
+            $table->integer('date');
             $table->timestamps();
 
             $table->foreign('user_id')

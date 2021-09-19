@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Tasks;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -51,7 +52,14 @@ class HomeController extends Controller
             'j' => 0,
         ]);
     }
-
+    function readToday() {
+        return view('todo.createTasks', [
+            'tasks' => auth()->user()->task()->latest()->where('chapter_id', 0)->where('date', date('d'))->get(),
+            'i' => 1,
+            'protcent' => 0,
+            'j' => 0,
+        ]);
+    }
     public function create() {
         return view('todo.create');
     }
@@ -82,7 +90,8 @@ class HomeController extends Controller
         Tasks::create([
             'task' => $request->input('task'),
             'chapter_id' => $request->input('chapter_id'),
-            'user_id' => auth()->user()->id
+            'user_id' => auth()->user()->id,
+            'date' => date('d')
         ]);
         $data = 'New task has been created';
         return response()->json(array('data'=> $data), 200);

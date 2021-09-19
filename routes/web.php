@@ -19,6 +19,7 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/home/read', 'HomeController@read');
+Route::get('/home/read/today', 'HomeController@readToday');
 Route::get('/home/create', 'HomeController@create');
 Route::post('/home', 'HomeController@store');
 

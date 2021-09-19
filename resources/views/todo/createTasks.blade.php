@@ -1,6 +1,4 @@
   @foreach ($tasks as $task)
-  {{-- {{ date('d') }}
-  {{ $task->created_at->format('d') }} --}}
   <div class="task-block d-flex py-3" style="position: relative">
     <div class="" style="position: relative">
       <label class="container_checkbox">
@@ -32,11 +30,15 @@
         class="form-icon" src="https://cdn-icons-png.flaticon.com/128/1214/1214428.png" 
         alt="">
       </form>
-      <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
-        <button type="button" class="btn btn-success ms-1">
-           {{ $protcent[ $j++ ].'% Done' }}
-        </button>
-      </form>
+      @if ($protcent === 0)
+        @else
+        <form style="{{ $task->required ? 'display: none' : 'display: inline-block' }}">
+          <button type="button" class="btn btn-success ms-1">
+             {{ $protcent[ $j++ ].'% Done' }}
+          </button>
+        </form>
+      @endif
+      
     </div>
   </div>
   @endforeach
