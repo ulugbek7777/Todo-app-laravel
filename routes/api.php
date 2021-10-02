@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,27 +13,14 @@ use Illuminate\Support\Facades\Hash;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/ 
+*/
 
-Route::get('/user-create', function () {
-    App\User::create([
-        'name' => 'ulug on code',
-        'email' => 'dchvbjdfhvbj@gmail.com',
-        'password' => Hash::make('mysuperduperpassword')
-    ]);
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('user', [AuthController::class, 'user']);
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 
-Route::post('/login', function () {
-    $credentials = [
-        'email' => 'dchvbjdfhvbj@gmail.com',
-        'password' => 'mysuperduperpassword'
-    ];
-    // $credentials = request()->only(['email', 'password']);
-    $token = auth()->attempt($credentials);
-
-    return response()->json($token);
-});
-
-Route::middleware('auth:api')->get('/me', function (Request $request) {
-    return auth()->user();
-});
+Route::get('data', [AuthController::class, 'data']);

@@ -16,6 +16,9 @@ class ChaptersController extends Controller
     {
         return view('chapter.index', ['chapters' => Chapter::all()]);
     }
+    public function user() {
+        return 'Authenticeted user';
+    }
 
     /**
      * Show the form for creating a new resource.
