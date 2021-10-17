@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Tasks;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -42,7 +41,7 @@ class AuthController extends Controller
 
     public function user()
     {
-        return Auth::user();
+        return auth()->user();
     }
 
     public function logout()
@@ -53,8 +52,4 @@ class AuthController extends Controller
             'message' => 'Success'
         ])->withCookie($cookie);
     }
-    public function data() {
-        return Tasks::all();
-    }
 }
-    

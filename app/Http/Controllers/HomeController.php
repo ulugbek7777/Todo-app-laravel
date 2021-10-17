@@ -115,7 +115,6 @@ class HomeController extends Controller
             'task' => $request->input('task'),
             'user_id' => auth()->user()->id
         ]);
-
         
     }
 
