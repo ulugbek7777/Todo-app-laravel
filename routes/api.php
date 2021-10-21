@@ -52,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('chapters', [\App\Http\Controllers\API\ChapterController::class, 'index']);
     Route::post('store/chapter', [\App\Http\Controllers\API\ChapterController::class, 'store']);
+    Route::put('update/chapter/{chapter}', [\App\Http\Controllers\API\ChapterController::class, 'update']);
+    Route::delete('destroy/chapter/{chapter}', [\App\Http\Controllers\API\ChapterController::class, 'destroy']);
 });
 
 Route::get('data', [AuthController::class, 'data']);

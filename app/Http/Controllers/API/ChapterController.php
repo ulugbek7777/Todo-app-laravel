@@ -53,9 +53,12 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Chapter $chapter)
     {
-        //
+        $chapter->update([
+            'chapter' => $request->input('chapter'),
+            'user_id' => auth()->user()->id
+        ]);
     }
 
     /**
@@ -64,8 +67,8 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Chapter $chapter)
     {
-        //
+        $chapter->delete();
     }
 }

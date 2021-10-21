@@ -12,6 +12,7 @@ class SubtaskController extends Controller
     {
         $subtask = subtask::create([
             'subtask' => $request->input('subtask'),
+            'description' => $request->input('description'),
             'task_id' => $id
         ]);
         return response()->json(array('subtask'=> $subtask), 200);
@@ -20,7 +21,8 @@ class SubtaskController extends Controller
     public function update(Request $request,subtask $subtask) 
     {
         $subtask->update([
-            'subtask' => $request->input('subtask')
+            'subtask' => $request->input('subtask'),
+            'description' => $request->input('description'),
         ]);
 
         return response()->json(array('subtask'=> $subtask), 200);
