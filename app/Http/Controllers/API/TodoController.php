@@ -13,6 +13,11 @@ class TodoController extends Controller
         $tasks = auth()->user()->task()->where('chapter_id', 0)->get();
         return response()->json($tasks);
     }
+    function sortPriority() 
+    {
+        $tasks = auth()->user()->task()->where('chapter_id', 0)->orderBy('priority', 'asc')->get();
+        return response()->json($tasks);
+    }
     function show(Tasks $task) 
     {
         $subtasks = $task->subtasks()->get();
@@ -25,7 +30,8 @@ class TodoController extends Controller
             'chapter_id' => $request->input('chapter_id'),
             'description' => $request->input('description'),
             'user_id' => auth()->user()->id,
-            'date' => $request->input('date')
+            'date' => $request->input('date'),
+            'priority' => $request->input('numPriority'),
         ]);
         $data = 'New task has been created';
         $lastTask = auth()->user()->task()->get()->last();
@@ -37,6 +43,7 @@ class TodoController extends Controller
         $task->update([
             'task' => $request->input('task'),
             'description' => $request->input('description'),
+            'priority' => $request->input('numPriority'),
             'user_id' => auth()->user()->id
         ]);
         
@@ -62,16 +69,21 @@ class TodoController extends Controller
 
     public function today() 
     {
-        $todayTasks = auth()->user()->task()->latest()->where('chapter_id', 0)->where('date', date('Y-d-m'));
+        $todayTasks = auth()->user()->task()->latest()->where('date', date('Y-d-m'));
         return response()->json(array('tasks' => $todayTasks->get(),
         'date' => date('Y-d-m')
     ));
     }
     public function calendar(Request $request) 
     {
-        $calendarTasks = auth()->user()->task()->latest()->where('chapter_id', 0)
+        $calendarTasks = auth()->user()->task()->latest()
         ->where('date', $request->input('date'))->get();
         return response()->json(array('tasks' => $calendarTasks, 'date' => $request->input('date')
     ));
+    }
+    public function changePosition(Request $request, Tasks $task) {
+        $task->update([
+            'chapter_id' => $request->input('chapter_id')
+        ]);
     }
 }

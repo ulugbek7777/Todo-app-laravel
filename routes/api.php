@@ -25,7 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //data
     //task
     Route::get('tasks', [\App\Http\Controllers\API\TodoController::class, 'index']);
+    Route::get('tasks/order/priority', [\App\Http\Controllers\API\TodoController::class, 'sortPriority']);
     Route::get('task/show/{task}', [\App\Http\Controllers\API\TodoController::class, 'show']);
+    Route::put('task/changeps/{task}', [\App\Http\Controllers\API\TodoController::class, 'changePosition']);
     Route::post('store/task', [\App\Http\Controllers\API\TodoController::class, 'store']);
 
 
