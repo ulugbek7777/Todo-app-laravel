@@ -50,6 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('tasks/today', [\App\Http\Controllers\API\TodoController::class, 'today']);
     Route::post('tasks/calendar', [\App\Http\Controllers\API\TodoController::class, 'calendar']);
+    Route::post('tasks/reorder', [\App\Http\Controllers\API\TodoController::class, 'reorder']);
+    Route::post('users/changeps/to/subtask', [\App\Http\Controllers\API\TodoController::class,'changePsToSubtask']);
     //chapter
 
     Route::get('chapters', [\App\Http\Controllers\API\ChapterController::class, 'index']);
